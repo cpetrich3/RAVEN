@@ -1,0 +1,7 @@
+# VSCode or JetBrains
+.vscode/
+.idea/
+
+# System junk
+.DS_Store
+Thumbs.db

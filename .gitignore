@@ -5,3 +5,9 @@
 # System junk
 .DS_Store
 Thumbs.db
+
+# Logs
+logs/**
+
+# Office docs
+*.docx

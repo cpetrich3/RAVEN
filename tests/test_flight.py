@@ -20,7 +20,7 @@ async def run():
 
     print("Starting Offboard Mode...")
     await drone.offboard.set_position_ned(
-        offboard.PositionNedYaw(0.0, 0.0, -5.0, 0.0)  # Start at 5m altitude
+        offboard.PositionNedYaw(0.0, 0.0, -5.0, 0.0)  # start at 5m altitude
     )
     await drone.offboard.start()
     await asyncio.sleep(5)

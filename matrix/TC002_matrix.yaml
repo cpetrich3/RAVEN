@@ -1,0 +1,65 @@
+test_cases:
+  - test_id: TC002-A
+    name: RTL_Nominal_300m
+    description: RTL from 300m, no wind, facing NE
+    start_position: [273.43, 123.43, -100.0]
+    distance: 300.0
+    heading_deg: 45
+    wind: false
+    home_offset: [0.0, 0.0]
+    gps_cut: false
+    gps_cut_time: null
+    gps_recover_time: null
+    sim_seeds: [12345, 98765, 43761]
+
+  - test_id: TC002-B
+    name: RTL_Long_Crosswind
+    description: RTL from 1200m, crosswind, facing NE
+    start_position: [1093.73, 493.73, -100.0]
+    distance: 1200.0
+    heading_deg: 45
+    wind: crosswind
+    home_offset: [0.0, 0.0]
+    gps_cut: false
+    gps_cut_time: null
+    gps_recover_time: null
+    sim_seeds: [12345, 98765, 43761]
+
+  - test_id: TC002-C
+    name: RTL_HomeDrift_Tailwind
+    description: RTL from 700m, tailwind, home offset
+    start_position: [638.01, 288.01, -100.0]
+    distance: 700.0
+    heading_deg: 45
+    wind: tailwind
+    home_offset: [2.0, -1.5]
+    gps_cut: false
+    gps_cut_time: null
+    gps_recover_time: null
+    sim_seeds: [12345, 98765, 43761]
+
+  - test_id: TC002-D
+    name: RTL_GPSLoss
+    description: RTL from 700m, GPS cut after 12s, no recovery
+    start_position: [638.01, 288.01, -100.0]
+    distance: 700.0
+    heading_deg: 45
+    wind: headwind
+    home_offset: [0.0, 0.0]
+    gps_cut: true
+    gps_cut_time: 12.0
+    gps_recover_time: null
+    sim_seeds: [12345, 98765, 43761]
+
+  - test_id: TC002-E
+    name: RTL_GPSLoss_Recovery
+    description: RTL from 700m, GPS lost at 8s, restored at 13s
+    start_position: [638.01, 288.01, -100.0]
+    distance: 700.0
+    heading_deg: 0
+    wind: crosswind
+    home_offset: [0.0, 0.0]
+    gps_cut: true
+    gps_cut_time: 8.0
+    gps_recover_time: 13.0
+    sim_seeds: [12345, 98765, 43761]

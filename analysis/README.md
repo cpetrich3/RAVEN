@@ -12,3 +12,9 @@ python analysis/extract_kpis.py logs/2025-06-01_squareWind \
 # 3  Append further runs
 python analysis/extract_kpis.py logs/2025-06-02_squareWind \
        --output analysis/squareWind.csv --append
+
+## 4 Post-Analysis Reports
+
+Final test reports are stored in:
+
+`analysis/debriefs/`

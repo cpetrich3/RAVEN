@@ -1,6 +1,0 @@
-file,landing_offset_m,cte_rms_m,cte_max_m,alt_rms10_m,alt_rms20_m,alt_rms15_m,vel_xy_rms_mps,vel_z_rms_mps,max_tilt_deg,ctrl_sat_pct,wind_mean_mps,wind_std_mps,innov_rms,flight_time_s,batt_drop_pct
-logs/2025-05-31_TC001_2_square/23_30_32.ulg,0.22,0.39,2.46,10.0,19.99,14.68,,,47.8,,,,,84,0.0
-logs/2025-05-31_TC001_2_square/23_32_33.ulg,0.21,0.31,2.47,10.02,19.99,15.01,,,47.8,,,,,121,0.0
-logs/2025-05-31_TC001_2_square/23_34_47.ulg,0.07,0.37,2.44,10.0,19.97,14.97,,,47.9,,,,,89,0.0
-logs/2025-05-31_TC001_2_square/23_36_28.ulg,0.18,0.49,2.51,9.99,19.9,3.99,,,47.8,,,,,75,0.0
-logs/2025-05-31_TC001_2_square/23_37_55.ulg,0.13,0.37,2.44,10.0,19.96,14.97,,,47.7,,,,,98,0.0

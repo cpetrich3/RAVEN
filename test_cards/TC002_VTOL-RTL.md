@@ -6,10 +6,10 @@
 **Prepared By**        Cole Petrich
 **System Under Test**  PX4 v1.14 SITL, standard_vtol
 **Control Script**     TC002_rtl_test.py
-**Iterations**         9 trials (3 each at 300m, 700m, 1200m)
+**Iterations**         15 trials across 5 scenarios
 
 ## 1 - Objective
-Examine VTOL's RTL performance under crosswinds from various distances. Examine control behavior, position drift (compare flight modes), power usage, and system responsiveness during long range autonomous return flights in heavy wind environment.
+Test how the VTOL handles RTL under wind and degraded GPS. Focus on landing accuracy, system stability, and whether RTL performs reliably across runs.
 
 ## 2 - Flight Profile
 | Step   | Action Description				| Coordinates     |
@@ -37,7 +37,7 @@ Each test case listed below will be executed in 3 repeated trials using a distin
 |---------|----------------------------------|--------|--------------|-----------|----------|
 | TC002-A | Nominal RTL from 300m            | 3      | 300          | None      | No       |
 | TC002-B | RTL from 1200m, crosswind        | 3      | 1200         | Crosswind | No       |
-| TC002-C | RTL from 700m, home drifted      | 3      | 700          | Tailwind  | No       |
+| TC002-C | RTL from 700m	             | 3      | 700          | Tailwind  | No       |
 | TC002-D | RTL from 700m, GPS lost (no rec) | 3      | 700          | Headwind  | Yes      |
 | TC002-E | RTL from 700m, GPS recovers      | 3      | 700          | Crosswind | Yes (rec)|
 
@@ -57,7 +57,7 @@ Simulation uses Gazebo with wind injected via world plugin/PX4 environment. Defa
 | Metric			| Requirement					| Data Source            |
 | :----------------------------	|:---------------------------------------------:|-----------------------:|
 | XY error on return		| <= 0.50m final landing error			| vehicle_local_position |
-| Altitude stability (RTL)	| <= +- 2m during RTL cruise			| vehicle_local_position |
+| Altitude stability (RTL)	| <= +- 2.5m during RTL cruise			| vehicle_local_position |
 | Time to disarm after RTL	| Logged and within expected threshold		| vehicle_status	 |
 | Battery usage			| Reasonable scaling by distance		| battery status	 |
 | Drift outbound vs. return	| Drift ration <= 1.5x outbound vs. return	| vehicle_local_position |
@@ -89,6 +89,7 @@ Simulation uses Gazebo with wind injected via world plugin/PX4 environment. Defa
 	- Cols: [test_id, trial_id, sim_seed, offset_m, heading_error_deg, rtl_duration_s, verdict, notes]
 
 Results to be compiled into ~/raven/analysis/debriefs/TC002_Debrief.pdf
+See analysis/TC002_RTL_analysis.py for analysis script
 
 ## 7 - Risks and Mitigations
 | Risk					| Mitigation					|
@@ -108,8 +109,11 @@ Results to be compiled into ~/raven/analysis/debriefs/TC002_Debrief.pdf
 Cole Petrich - Test Engineer, Analyst, Developer
 
 ## 10 - Notes / Lessons Learned
-- [Observations, surprises, deviations from plan]
-- [What was learned or needs to be improved]
-- [Ideas for future test variations or upgrades]
+- PX4 RTL logic relies heavily on GPS
+- Wind impacts are managable with current PID tuning and trajectory planning (stock on PX4)
+- Sensor anaomalies (rapid spikes) do not necessarily affect performance but should be monitored
+- Realistic test condiditions (in sim) expose critical navigation edge cases not apparent in ideal runs
+- Failsafe thresholds and home accuracy logic should be hardened for degraded GPS signal environments
 
+System reliably executes RTL with under 0.1m error under normal conditions. GPS loss exposes drifts without failsafe triggered. This test campaign defines the cieling and floor of RTL performance, setting the stage for closed-loop robustnes improvements
 

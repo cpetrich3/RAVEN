@@ -1,0 +1,117 @@
+# Test Card: TC003_EW-Stress-Test
+
+**Test Name**          VTOL Resilience to GPS and Sensor Degradation (EW Simulation Trials)
+**Revision**           1.0
+**Date**               2025-06-11
+**Prepared By**        Cole Petrich
+**System Under Test**  PX4 v1.14 SITL, standard_vtol
+**Control Script**     TC003_sensor_failure_test.py
+**Iterations**         15 trials (5 scenarios, 3 trials)
+
+## 1 - Objective
+Asses PX4 VTOL performance under multiple sensor failures and distrubances simulating an electronic warfare environment. Evaluate control, estimator reliability, and fallback logic across spoofin, environmental disruptions, and forced failsafe responses.
+
+## 2 - Flight Profile
+| Step   | Action Description                           | Coordinates     |
+|:-------|:---------------------------------------------|----------------:|
+| **T0** | Takeoff to 20m                               | (0, 0, -20)     |
+| **T1** | Transition to forward flight mode            | (0, 0, -20)     |
+| **T2** | Navigate to 1000m forward, 100m climb        | (X, 0, -100)    |
+| **T3** | Loiter for 10s at distance                   | (X+Y, Y, -100)  |
+| **T4** | Activate RTL                                 | Auto from FC    |
+| **T5** | Induce sensor faults (GPS, compass, EKF)     | runtime event   |
+| **T6** | Observe behavior, landing outcome            | (0, 0, 0)       |
+
+All coordinates in local NED. Z is negative up.
+
+## 2.1 - Expected Results
+- System attempts to recover or fail gracefully under sensor degradation
+- GPS spoofing is either rejected or leads to controlled fallback
+- Compass interference results in drift or proper failsafe
+- EKF reset does not lead to crash
+- Failsafe triggers if flight becomes unstable or control lost
+- Log confirms altitude control and recovery logic during disruptions
+
+## 2.2 - Test Cases and Trials
+Each test case listed below will be executed in 3 repeated trials using a distinct sim seed to assess repeatability and system sensitivity to random variation.
+
+| Test ID | Scenario                                       | Trials | GPS Drift | Compass Drift | Wind | Failsafe Stack | Sensor Cut | Notes                                           |
+|:--------|:----------------------------------------------:|:------:|:---------:|:-------------:|:----:|:--------------:|:----------:|------------------------------------------------:|
+| TC003-A | GPS Spoofing Injection                         | 3      | Drift     | No            | No   | No             | No         | Fake NED position injected during flight        |
+| TC003-B | GPS Loss and Compass Interference              | 3      | Off       | Yes           | No   | No             | No         | Heading direction change with GPS total loss    | 
+| TC003-C | Wind Shear at Waypoint                         | 3      | No        | No            | Yes  | No             | No         | Lateral burst wind simulating sudden crosswind  |
+| TC003-D | Failsafe Override and Recovery                 | 3      | Off       | Yes           | Yes  | Yes            | No         | Simulate RC loss, GPS, and battery failure      |
+| TC003-E | Sensor Blackout During RTL                     | 3      | No        | No            | No   | No             | Gyro, Baro | Critical sensor blackout mid-RTL                |
+
+Total trials: **15**
+
+## 3 - Setup and Environment
+**PX4 build**           make px4_sitl gazebo standard_vtol
+**Start position**      (0, 0, 0) NED - transition altitude: 20m; cruise alt: 100m
+**Flight path**         TC003_sensor_failure_test.py
+**Disturbances**        GPS loss, compass spoofing, sensor blackout
+**Parameters**          EKF2, NAV failsafe tuning optional per case
+**Logging**             .ulg auto-recorded, converted to .csv; Real-time log analysis
+
+Simulation uses Gazebo with disturbances injected via plugin/PX4 environment. Default lat/lon position used unless stated otherwise.
+
+## 4 - Pass / Fail Criteria
+| Metric                         | Requirement                                   | Data Source            |
+| :------------------------------|:---------------------------------------------:|------------------------:|
+| Position deviation under spoof | < 10m before rejection/failsafe               | estimator_status        |
+| Heading drift                  | Estimator detects compass fault               | vehicle_attitude        |
+| Wind response                  | Maintains loiter or triggers RTL/failsafe     | vehicle__local_position |
+| Sensor fallback                | EKF resets allowed, no uncontrolled crash     | estimator_status        |
+
+## 5 - Test Procedure
+1. Lauch PX4 SITL with windy
+        make px4_sitl gazebo_Standard_vtol__windy
+2. Load test matrix from '~/dev/raven/matrix/TC003_matrix.yaml'
+3. For each test case ID:
+        - execute 3 trials using different 'sim_seed' values ('12345, 98765, 43761)
+4. Run control script
+        python3 ~/dev/raven/tests/TC003_sensor_failure_test.py --test_id TC003-X (A-E)
+5. Simulate GPS/compass/sensor faults per YAML
+6. Observe behavior; save logs and output
+
+## 6 - Data Logging
+- .ulg to .csv using log converter
+- Real time logging script outputs (drift magnitude, battery percentage change, time from RTL trigger to disarm, PASS/FAIL on predefined criteria)
+- test_tracker.csv
+        - GPS/Sensor/Compass status flags
+        - RTL trigger and landing time
+        - Final position offset
+        - Altitude profile
+        - Failsafe status
+
+- Post-flight plots
+        - Trajectory overlay (pre/post fault)
+        - Altitude profile
+        - GPS fix/spoof status
+        - Flight mode timeline
+
+Results to be compiled into ~/raven/analysis/debriefs/TC003_Debrief.pdf
+
+## 7 - Risks and Mitigations
+| Risk                                  | Mitigation                                         |
+|:--------------------------------------|---------------------------------------------------:|
+| System crash post EKF reset           | Validate estimator params; soft trigger reset      |
+| Spoofing leads to nav drift           | Enforce failsafe timeout and position rejection    |
+| Wind destabilizes loiter              | Reduce loiter radius, tune parameters              |
+| Stacked failsafes mishandled          | Confirm priority handling logic in MAVSDK          |
+
+## 8 - Deliverables
+- Test card: TC003_Sensor-Degradation.md
+- YAML matrix: TC003_matrix.yaml
+- Script: TC003_sensor_failure_test.py
+- .ulg logs and converted .csv's
+- Auto-analysis plots and runtime logs
+- Summary report: TC003_Debrief.pdf
+
+## 9 - Participants
+Cole Petrich - Test Engineer, Analyst, Developer
+
+## 10 - Notes / Lessons Learned
+- [Flight outcomes under various degradation modes]
+- [Failsafe behavior consistency]
+- [Suggestions for future EW-related test expansion]
